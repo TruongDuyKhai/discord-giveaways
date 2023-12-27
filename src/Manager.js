@@ -78,10 +78,10 @@ class GiveawaysManager extends EventEmitter {
                 giveaway.isDrop
                     ? giveaway.embedColor
                     : giveaway.pauseOptions.isPaused && giveaway.pauseOptions.embedColor
-                    ? giveaway.pauseOptions.embedColor
-                    : lastChanceEnabled
-                    ? giveaway.lastChance.embedColor
-                    : giveaway.embedColor
+                        ? giveaway.pauseOptions.embedColor
+                        : lastChanceEnabled
+                            ? giveaway.lastChance.embedColor
+                            : giveaway.embedColor
             )
             .setFooter({
                 text:
@@ -93,19 +93,21 @@ class GiveawaysManager extends EventEmitter {
                 giveaway.isDrop
                     ? giveaway.messages.dropMessage
                     : (giveaway.pauseOptions.isPaused
-                          ? giveaway.pauseOptions.content + '\n\n'
-                          : lastChanceEnabled
-                          ? giveaway.lastChance.content + '\n\n'
-                          : '') +
-                          giveaway.messages.inviteToParticipate +
-                          '\n' +
-                          giveaway.messages.drawing.replace(
-                              '{timestamp}',
-                              giveaway.endAt === Infinity
-                                  ? giveaway.pauseOptions.infiniteDurationText
-                                  : `<t:${Math.round(giveaway.endAt / 1000)}:R>`
-                          ) +
-                          (giveaway.hostedBy ? '\n' + giveaway.messages.hostedBy : '')
+                        ? giveaway.pauseOptions.content + '\n\n'
+                        : lastChanceEnabled
+                            ? giveaway.lastChance.content + '\n\n'
+                            : '') +
+                    giveaway.messages.inviteToParticipate +
+                    '\n' +
+                    giveaway.messages.drawing.replace(
+                        '{timestamp}',
+                        giveaway.endAt === Infinity
+                            ? giveaway.pauseOptions.infiniteDurationText
+                            : `<t:${Math.round(giveaway.endAt / 1000)}:R>`
+                    ) +
+                    (giveaway.hostedBy ? '\n' + giveaway.messages.hostedBy : '') +
+                    (giveaway.requirementRoles[0] ? `\n\n` + `**Requirements**` + '\n' + `${giveaway.requirementRoles.map(e => `<@&${e}>`).join(' ')}` : '') +
+                    (giveaway.blacklist[0] ? `\n\n` + `**Blacklist**` + '\n' + `${giveaway.exemptRoles.map(e => `<@&${e}>`).join(' ')}` : '')
             )
             .setThumbnail(giveaway.thumbnail)
             .setImage(giveaway.image);
@@ -240,6 +242,8 @@ class GiveawaysManager extends EventEmitter {
                 channelId: channel.id,
                 guildId: channel.guildId,
                 prize: options.prize,
+                requirementRoles: options.requirementRoles,
+                blacklist: options.blacklist,
                 hostedBy: options.hostedBy ? options.hostedBy.toString() : undefined,
                 messages:
                     options.messages && typeof options.messages === 'object'
@@ -297,7 +301,7 @@ class GiveawaysManager extends EventEmitter {
                         maxUsers: giveaway.winnerCount
                     })
                     .then(() => this.end(giveaway.messageId))
-                    .catch(() => {});
+                    .catch(() => { });
             }
         });
     }
@@ -392,7 +396,7 @@ class GiveawaysManager extends EventEmitter {
             if (!giveaway) return reject('No giveaway found with message Id ' + messageId + '.');
 
             if (!doNotDeleteMessage) {
-                giveaway.message ??= await giveaway.fetchMessage().catch(() => {});
+                giveaway.message ??= await giveaway.fetchMessage().catch(() => { });
                 giveaway.message?.delete();
             }
             this.giveaways = this.giveaways.filter((g) => g.messageId !== messageId);
@@ -517,16 +521,16 @@ class GiveawaysManager extends EventEmitter {
 
             // Second case: the giveaway is a drop
             if (giveaway.isDrop) {
-                giveaway.message = await giveaway.fetchMessage().catch(() => {});
+                giveaway.message = await giveaway.fetchMessage().catch(() => { });
 
                 if (giveaway.messageReaction?.count - 1 >= giveaway.winnerCount) {
-                    const users = await giveaway.fetchAllEntrants().catch(() => {});
+                    const users = await giveaway.fetchAllEntrants().catch(() => { });
 
                     let validUsers = 0;
                     for (const user of [...(users?.values() || [])]) {
                         if (await giveaway.checkWinnerEntry(user)) validUsers++;
                         if (validUsers === giveaway.winnerCount) {
-                            await this.end(giveaway.messageId).catch(() => {});
+                            await this.end(giveaway.messageId).catch(() => { });
                             break;
                         }
                     }
@@ -553,13 +557,13 @@ class GiveawaysManager extends EventEmitter {
                     Number.isFinite(giveaway.pauseOptions.unpauseAfter) &&
                     Date.now() > giveaway.pauseOptions.unpauseAfter
                 ) {
-                    return this.unpause(giveaway.messageId).catch(() => {});
+                    return this.unpause(giveaway.messageId).catch(() => { });
                 }
             }
 
             // Fourth case: giveaway should be ended right now. this case should only happen after a restart
             // Because otherwise, the giveaway would have been ended already (using the next case)
-            if (giveaway.remainingTime <= 0) return this.end(giveaway.messageId).catch(() => {});
+            if (giveaway.remainingTime <= 0) return this.end(giveaway.messageId).catch(() => { });
 
             // Fifth case: the giveaway will be ended soon, we add a timeout so it ends at the right time
             // And it does not need to wait for _checkGiveaway to be called again
@@ -570,10 +574,10 @@ class GiveawaysManager extends EventEmitter {
             if (
                 giveaway.lastChance.enabled &&
                 giveaway.remainingTime - giveaway.lastChance.threshold <
-                    (this.options.forceUpdateEvery || DEFAULT_CHECK_INTERVAL)
+                (this.options.forceUpdateEvery || DEFAULT_CHECK_INTERVAL)
             ) {
                 setTimeout(async () => {
-                    giveaway.message ??= await giveaway.fetchMessage().catch(() => {});
+                    giveaway.message ??= await giveaway.fetchMessage().catch(() => { });
                     const embed = this.generateMainEmbed(giveaway, true);
                     await giveaway.message
                         ?.edit({
@@ -581,14 +585,14 @@ class GiveawaysManager extends EventEmitter {
                             embeds: [embed],
                             allowedMentions: giveaway.allowedMentions
                         })
-                        .catch(() => {});
+                        .catch(() => { });
                 }, giveaway.remainingTime - giveaway.lastChance.threshold);
             }
 
             // Fetch the message if necessary and make sure the embed is alright
-            giveaway.message ??= await giveaway.fetchMessage().catch(() => {});
+            giveaway.message ??= await giveaway.fetchMessage().catch(() => { });
             if (!giveaway.message) return;
-            if (!giveaway.message.embeds[0]) await giveaway.message.suppressEmbeds(false).catch(() => {});
+            if (!giveaway.message.embeds[0]) await giveaway.message.suppressEmbeds(false).catch(() => { });
 
             // Regular case: the giveaway is not ended and we need to update it
             const lastChanceEnabled =
@@ -605,7 +609,7 @@ class GiveawaysManager extends EventEmitter {
                         embeds: [updatedEmbed],
                         allowedMentions: giveaway.allowedMentions
                     })
-                    .catch(() => {});
+                    .catch(() => { });
             }
         });
     }
@@ -623,16 +627,16 @@ class GiveawaysManager extends EventEmitter {
 
         const guild =
             this.client.guilds.cache.get(packet.d.guild_id) ||
-            (await this.client.guilds.fetch(packet.d.guild_id).catch(() => {}));
+            (await this.client.guilds.fetch(packet.d.guild_id).catch(() => { }));
         if (!guild || !guild.available) return;
 
-        const member = await guild.members.fetch(packet.d.user_id).catch(() => {});
+        const member = await guild.members.fetch(packet.d.user_id).catch(() => { });
         if (!member) return;
 
-        const channel = await this.client.channels.fetch(packet.d.channel_id).catch(() => {});
+        const channel = await this.client.channels.fetch(packet.d.channel_id).catch(() => { });
         if (!channel) return;
 
-        const message = await channel.messages.fetch(packet.d.message_id).catch(() => {});
+        const message = await channel.messages.fetch(packet.d.message_id).catch(() => { });
         if (!message) return;
 
         const emoji = Discord.resolvePartialEmoji(giveaway.reaction);
@@ -648,13 +652,13 @@ class GiveawaysManager extends EventEmitter {
 
             // Only end drops if the amount of available, valid winners is equal to the winnerCount
             if (giveaway.isDrop && reaction.count - 1 >= giveaway.winnerCount) {
-                const users = await giveaway.fetchAllEntrants().catch(() => {});
+                const users = await giveaway.fetchAllEntrants().catch(() => { });
 
                 let validUsers = 0;
                 for (const user of [...(users?.values() || [])]) {
                     if (await giveaway.checkWinnerEntry(user)) validUsers++;
                     if (validUsers === giveaway.winnerCount) {
-                        await this.end(giveaway.messageId).catch(() => {});
+                        await this.end(giveaway.messageId).catch(() => { });
                         break;
                     }
                 }

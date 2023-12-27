@@ -1,5 +1,5 @@
 {
-  "name": "discord-giveaways",
+  "name": "TruongDuyKhai/discord-giveaways",
   "version": "6.0.1",
   "description": "A complete framework to facilitate the creation of giveaways using discord.js",
   "main": "index.js",

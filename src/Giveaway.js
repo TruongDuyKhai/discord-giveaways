@@ -132,6 +132,16 @@ class Giveaway extends EventEmitter {
          * @type {?Discord.Message}
          */
         this.message = null;
+        /**
+         * Blacklist where any user with these roles cannot enter in the giveaway.
+         * @type {Array}
+         */
+        this.blacklist = options.blacklist || [];
+        /**
+         * Required list where any user without these roles cannot enter in the giveaway.
+         * @type {Array}
+         */
+        this.requirementRoles = options.requirementRoles || [];
     }
 
     /**
@@ -296,6 +306,26 @@ class Giveaway extends EventEmitter {
     }
 
     /**
+     * The Blacklist roles for this giveaway.
+     * @type {Array}
+     */
+    get blacklist() {
+        return this.blacklist.map(id => {
+            return this.message?.guild.roles.cache.get(id);
+        })
+    }
+
+    /**
+     * The requirement roles for this giveaway.
+     * @type {Array}
+     */
+    get requirementRoles() {
+        return this.requirementRoles.map(id => {
+            return this.message?.guild.roles.cache.get(id);
+        })
+    }
+
+    /**
      * The raw giveaway object for this giveaway.
      * @type {GiveawayData}
      */
@@ -309,6 +339,8 @@ class Giveaway extends EventEmitter {
             ended: this.ended,
             winnerCount: this.winnerCount,
             prize: this.prize,
+            blacklist: this.blacklist,
+            requirementRoles: this.requirementRoles,
             messages: this.messages,
             thumbnail: this.thumbnail,
             image: this.image,

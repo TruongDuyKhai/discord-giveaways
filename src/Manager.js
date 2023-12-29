@@ -648,6 +648,17 @@ class GiveawaysManager extends EventEmitter {
 
         if (packet.t === 'MESSAGE_REACTION_ADD') {
             if (giveaway.ended) return this.emit('endedGiveawayReactionAdded', giveaway, member, reaction);
+
+            if (giveaway.blacklist.find(e => member.roles.cache.get(e))) {
+                await reaction.users.remove(member.user);
+                return this.emit('giveawayReactionFailed', 'blacklist', giveaway, member, reaction);
+            }
+
+            if (!giveaway.requirementRoles.every(e => member.roles.cache.get(e))) {
+                await reaction.users.remove(member.user);
+                return this.emit('giveawayReactionFailed', 'requirementRoles', giveaway, member, reaction);
+            }
+
             this.emit('giveawayReactionAdded', giveaway, member, reaction);
 
             // Only end drops if the amount of available, valid winners is equal to the winnerCount

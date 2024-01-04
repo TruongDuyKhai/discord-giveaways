@@ -106,8 +106,8 @@ class GiveawaysManager extends EventEmitter {
                             : `<t:${Math.round(giveaway.endAt / 1000)}:R>`
                     ) +
                     (giveaway.hostedBy ? '\n' + giveaway.messages.hostedBy : '') +
-                    (giveaway.requirementRoles[0] ? `\n\n` + `**Requirements**` + '\n' + `${giveaway.requirementRoles.map(e => `<@&${e}>`).join(' ')}` : '') +
-                    (giveaway.blacklist[0] ? `\n\n` + `**Blacklist**` + '\n' + `${giveaway.exemptRoles.map(e => `<@&${e}>`).join(' ')}` : '')
+                    (giveaway.requirementRoles[0] ? '\n\n' + `${giveaway.messages.requirementRoles.replace('{requirementRoles}', giveaway.requirementRoles.map(e => `<@&${e}>`).join(' '))}` : '') +
+                    (giveaway.blacklist[0] ? '\n\n' + `${giveaway.messages.blacklist.replace('{blacklist}', giveaway.blacklist.map(e => `<@&${e}>`).join(' '))}` : '')
             )
             .setThumbnail(giveaway.thumbnail)
             .setImage(giveaway.image);

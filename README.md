@@ -570,3 +570,5 @@ There are 4 methods you will need to replace:
 - Replit Database ⚠️ Only usable if your bot is hosted on [Replit](https://replit.com/)
   - [@replit/database](https://github.com/Androz2091/discord-giveaways/blob/master/examples/custom-databases/replit.js)
   - [Quick.Replit](https://github.com/Androz2091/discord-giveaways/blob/master/examples/custom-databases/quick.replit.js)
+
+© copyright [androz2091](https://www.npmjs.com/~androz2091) [discord-giveaways](https://npmjs.com/package/discord-giveaways)

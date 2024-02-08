@@ -571,7 +571,7 @@ class Giveaway extends EventEmitter {
         // Fetch all guild members if the intent is available
         if (new Discord.IntentsBitField(this.client.options.intents).has(Discord.IntentsBitField.Flags.GuildMembers)) {
             // Try to fetch the guild from the client if the guild instance of the message does not have its shard defined
-            if (this.client.shard && !guild.shard) {
+            if ((this.client.shard && !guild.shard) || (this.client.cluster && !guild.shard)) {
                 guild = (await this.client.guilds.fetch(guild.id).catch(() => { })) ?? guild;
                 // "Update" the message instance too, if possible.
                 this.message = (await this.fetchMessage().catch(() => { })) ?? this.message;

@@ -306,16 +306,6 @@ class Giveaway extends EventEmitter {
     }
 
     /**
-     * The Blacklist roles for this giveaway.
-     * @type {Array}
-     */
-    get blacklist() {
-        return this.blacklist.map(id => {
-            return this.message?.guild.roles.cache.get(id);
-        })
-    }
-
-    /**
      * The requirement roles for this giveaway.
      * @type {Array}
      */
